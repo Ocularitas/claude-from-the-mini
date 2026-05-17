@@ -44,3 +44,37 @@ next-env.d.ts
 .claude/
 .telecontrol/
 .telecontrol_session.mcp
+
+# Defensive sensitive-file coverage (added 2026-05-17 security audit)
+# Private keys (SSH, TLS)
+*.key
+*.p12
+*.pfx
+*.crt
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+id_ecdsa
+id_ecdsa.pub
+id_dsa
+
+# Credential files
+credentials.json
+credentials.yml
+credentials.yaml
+.npmrc
+.pypirc
+.netrc
+.docker/config.json
+.kube/config
+.aws/
+
+# Token files
+*.token
+.gh_token
+
+# Extra env variants
+.env.production
+.env.staging
+.env.*.local
