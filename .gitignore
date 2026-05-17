@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Per-machine agent state (not for repo)
+.claude/
+.telecontrol/
+.telecontrol_session.mcp

@@ -1,4 +1,7 @@
-import { entries } from "./entries";
+"use client";
+
+import { useState } from "react";
+import { entries, type Tag } from "./entries";
 
 const longDate = (iso: string) =>
   new Date(iso + "T00:00:00").toLocaleDateString("en-US", {
@@ -9,11 +12,23 @@ const longDate = (iso: string) =>
   });
 
 export default function Home() {
-  const grouped = entries.reduce<Record<string, typeof entries>>((acc, e) => {
+  const [activeTag, setActiveTag] = useState<Tag | null>(null);
+
+  const tagCounts = entries.reduce<Record<Tag, number>>((acc, e) => {
+    for (const tag of e.tags) acc[tag] = (acc[tag] ?? 0) + 1;
+    return acc;
+  }, {} as Record<Tag, number>);
+  const allTags = Object.keys(tagCounts).sort() as Tag[];
+
+  const filtered = activeTag
+    ? entries.filter((e) => e.tags.includes(activeTag))
+    : entries;
+
+  const grouped = filtered.reduce<Record<string, typeof entries>>((acc, e) => {
     (acc[e.date] ||= []).push(e);
     return acc;
   }, {});
-  const dates = Object.keys(grouped);
+  const dates = Object.keys(grouped).sort().reverse();
 
   return (
     <main className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
@@ -35,6 +50,23 @@ export default function Home() {
         </p>
       </section>
 
+      <div className="mb-12 flex flex-wrap gap-2">
+        {allTags.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+            className={[
+              "rounded-full border px-3 py-1 font-sans text-xs uppercase tracking-[0.12em] transition-colors",
+              activeTag === tag
+                ? "border-muted bg-rule text-foreground"
+                : "border-rule text-muted hover:border-muted hover:text-foreground",
+            ].join(" ")}
+          >
+            {tag} ({tagCounts[tag]})
+          </button>
+        ))}
+      </div>
+
       <div className="space-y-20">
         {dates.map((date) => (
           <section key={date}>
@@ -51,6 +83,21 @@ export default function Home() {
                   <h3 className="font-serif text-2xl italic leading-tight">
                     {entry.title}
                   </h3>
+                  {entry.tags.length > 0 && (
+                    <div className="mt-3 font-sans text-xs text-muted">
+                      {entry.tags.map((tag, k) => (
+                        <span key={k}>
+                          <button
+                            onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                            className="transition-colors hover:text-foreground"
+                          >
+                            {tag}
+                          </button>
+                          {k < entry.tags.length - 1 && <span className="mx-1">·</span>}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <div className="mt-5 space-y-5 font-serif text-lg leading-relaxed text-foreground/90">
                     {entry.body.map((p, j) => (
                       <p key={j}>{p}</p>
